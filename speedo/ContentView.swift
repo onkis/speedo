@@ -8,14 +8,26 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var provider = LocationSpeedProvider()
+    @Environment(\.scenePhase) private var scenePhase
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        ZStack {
+            Color.black.ignoresSafeArea()
+
+            Text(SpeedFormatting.mphString(fromMetersPerSecond: provider.speedMetersPerSecond))
+                .font(.system(size: 200, weight: .bold, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.2)
+                .padding()
         }
-        .padding()
+        .onAppear { provider.start() }
+        .onChange(of: scenePhase, initial: true) { _, phase in
+            // Keep the screen awake only while the app is foregrounded.
+            UIApplication.shared.isIdleTimerDisabled = (phase == .active)
+        }
     }
 }
 
